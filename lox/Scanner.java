@@ -110,6 +110,9 @@ class Scanner {
     }
   }
 
+  //scan an identifier and checks map for a match
+  //if match, uses that token type
+  //otherwise, identifier is user-defined
   private void identifier() {
     while(isAlphaNumeric(peek())) advance();
 
