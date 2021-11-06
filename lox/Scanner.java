@@ -74,10 +74,48 @@ class Scanner {
         line++;
         break;
 
+      case '"': string(); break;
+
       default:
-        Lox.error(line, "Unexpected character.");
+        if(isDigit(c)) {
+          number();
+        } else{
+          Lox.error(line, "Unexpected character.");
+        } 
         break;
     }
+  }
+
+  private void number() {
+    while(isDigit(peek())) advance();
+
+    //look for fractional
+    if(peek() == '.' && isDigit(peekNext())) {
+      advance();
+
+      while(isDigit(peek())) advance();
+    }
+    addToken(NUMBER,
+        Double.parseDouble(source.substring(start, current)));
+  }
+
+  private void string() {
+    while(peek() != '"' && !isAtEnd()) {
+      if(peek() == '\n') line++; //Lox supports multiline comments
+      advance();
+    }
+
+    if(isAtEnd()) {
+      Lox.error(line, "Undetermined string.");
+      return;
+    }
+
+    //closing quote
+    advance();
+
+    //trim off surround quotes
+    String value = source.substring(start + 1, current -1);
+    addToken(STRING, value);
   }
 
   //look at second character for non-single-character lexemes
@@ -94,6 +132,16 @@ class Scanner {
   private char peek() {
     if(isAtEnd()) return '\0';
     return source.charAt(current);
+  }
+
+  //lookahead two characters without consumption
+  private char peekNext() {
+    if(current + 1 >= source.length()) return '\0';
+    return source.charAt(current + 1);
+  }
+
+  private boolean isDigit(char c) {
+    return c >= '0' && c <= '9';
   }
 
   private boolean isAtEnd() {

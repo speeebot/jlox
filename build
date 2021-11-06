@@ -1,0 +1,1 @@
+javac lox/*.java -d class/
